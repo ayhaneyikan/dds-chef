@@ -116,6 +116,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "common"
+version = "0.1.0"
+
+[[package]]
 name = "core-foundation-sys"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -402,6 +406,7 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 name = "main"
 version = "0.1.0"
 dependencies = [
+ "common",
  "messages",
  "rustdds",
 ]
@@ -764,6 +769,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 name = "sub"
 version = "0.1.0"
 dependencies = [
+ "common",
  "messages",
  "rustdds",
 ]

@@ -1,20 +1,23 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SimpleMessage {
-  val: i32,
-  version: f32,
+pub struct SimpleCommand {
+    pub value: i32,
+    pub version: f32,
 }
 
-impl SimpleMessage {
-  pub fn new(val: i32, version: f32) -> Self {
-    Self {
-      val,
-      version
+impl SimpleCommand {
+    pub fn new(value: i32, version: f32) -> Self {
+        Self { value, version }
     }
-  }
 }
 
-#[cfg(test)]
-mod tests {
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SimpleCommandAck;
+
+impl SimpleCommandAck {
+    pub fn new() -> Self {
+        Self
+    }
 }

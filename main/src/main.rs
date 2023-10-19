@@ -1,38 +1,54 @@
-use messages::SimpleMessage;
-use rustdds::{DomainParticipant, QosPolicyBuilder, policy, TopicKind, CDRSerializerAdapter};
-
+mod some_publisher;
+use messages::{SimpleCommand, SimpleCommandAck};
+use rustdds::{CDRSerializerAdapter, DomainParticipant, QosPolicyBuilder, TopicKind, CDRDeserializerAdapter};
+use some_publisher::PublisherBase;
 
 fn main() {
-  // always necessary establishing a common dds domain (i think)
-  let domain_participant = DomainParticipant::new(0).unwrap();
-  
-  // some kind of reliability declaration
-  //  sets no blocking for responses
-  // builds the policy?
-  let qos = QosPolicyBuilder::new()
-    .reliability(policy::Reliability::Reliable { max_blocking_time: rustdds::Duration::DURATION_ZERO })
-    .build();
-  
-  // create publisher instance
-  // DDS Publisher, only one is necessary for each thread (slight difference to DDS specification)
-  let publisher = domain_participant.create_publisher(&qos).unwrap();
+  // set up domain & quality of service policy
+  let participant = DomainParticipant::new(0).unwrap();
+  let qos = QosPolicyBuilder::new().build();
 
-  // Some DDS Topic that we can write and read from (basically only binds readers and writers together)
-  let some_topic = domain_participant.create_topic("simple_test".to_string(), "SimpleMessage".to_string(), &qos, TopicKind::NoKey).unwrap();
-
-  // create data writer instance which will publish a message to the given topic
-  // Creating DataWriter required type and serializer adapter (which is recommended to be CDR).
-  // I AM UNSURE WHY THE QOS IS NOT PASSED IN HERE, PERHAPS IT IS UNNECESSARY AS IT HAS BEEN PASSED INTO THE ENTIRE TOPIC
-  let writer = publisher
-    .create_datawriter_no_key::<SimpleMessage, CDRSerializerAdapter<SimpleMessage>>(&some_topic, None)
+  // create command topic
+  let command_topic = participant
+    .create_topic(
+      "test_command".to_string(),
+      "Simple command test".to_string(),
+      &qos,
+      TopicKind::NoKey,
+    )
     .unwrap();
 
-  // create message to be sent  
-  let msg = SimpleMessage::new(67, 10.20);
+  // create command ack topic
+  let command_ack_topic = participant
+    .create_topic(
+      "test_command_ack".to_string(),
+      "Ack for simple command test".to_string(),
+      &qos,
+      TopicKind::NoKey,
+    )
+    .unwrap();
 
-  // send message to all who listen to the topic
-  match writer.write(msg, None) {
-    Ok(_) => println!("Message published successfully"),
-    Err(_) => println!("Message failed to publish :("),
+  // create sender for command topic
+  let publisher = participant.create_publisher(&qos).unwrap();
+  let command_sender = publisher
+    .create_datawriter_no_key::<SimpleCommand, CDRSerializerAdapter<_>>(&command_topic, None)
+    .unwrap();
+
+  // create receiver for command ack topic
+  let subscriber = participant.create_subscriber(&qos).unwrap();
+  let command_ack_receiver = subscriber
+    .create_datareader_no_key::<SimpleCommandAck, CDRDeserializerAdapter<_>>(&command_ack_topic, None)
+    .unwrap();
+
+  
+
+  // initialize publisher service
+  let mut p = PublisherBase::new(command_sender, command_ack_receiver);
+
+  println!("Running Publisher");
+  while !p.check_completed() {
+    p.cycle();
   }
+
+  println!("Publisher completed running successfully!");
 }
