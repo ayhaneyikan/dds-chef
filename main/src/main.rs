@@ -1,4 +1,6 @@
 mod some_publisher;
+use std::{thread::sleep, time::Duration};
+
 use messages::{SimpleCommand, SimpleCommandAck};
 use rustdds::{CDRSerializerAdapter, DomainParticipant, QosPolicyBuilder, TopicKind, CDRDeserializerAdapter};
 use some_publisher::PublisherBase;
@@ -40,10 +42,13 @@ fn main() {
     .create_datareader_no_key::<SimpleCommandAck, CDRDeserializerAdapter<_>>(&command_ack_topic, None)
     .unwrap();
 
-  
+
 
   // initialize publisher service
   let mut p = PublisherBase::new(command_sender, command_ack_receiver);
+
+  // initialization delay
+  sleep(Duration::from_secs(5));
 
   println!("Running Publisher");
   while !p.check_completed() {

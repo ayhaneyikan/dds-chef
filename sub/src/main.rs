@@ -40,7 +40,7 @@ fn main() {
     .create_datawriter_no_key::<SimpleCommandAck, CDRSerializerAdapter<_>>(&command_ack_topic, None)
     .unwrap();
 
-  
+
 
   // initialize subscriber service
   let mut s = SubscriberBase::new(command_receiver, command_ack_sender);

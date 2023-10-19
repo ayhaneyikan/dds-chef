@@ -6,6 +6,3 @@ pub enum State {
   EXECUTING,
   COMPLETED,
 }
-
-#[cfg(test)]
-mod tests {}
