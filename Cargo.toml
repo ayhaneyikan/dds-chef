@@ -1,6 +1,7 @@
 [workspace]
+resolver = "2"
 members = [
-  "main",
+  "driver",
   "sub",
   "messages",
   "common",

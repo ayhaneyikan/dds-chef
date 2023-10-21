@@ -21,3 +21,8 @@ impl SimpleCommandAck {
         Self
     }
 }
+impl Default for SimpleCommandAck {
+    fn default() -> Self {
+        Self::new()
+    }
+}

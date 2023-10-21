@@ -31,7 +31,7 @@ impl PublisherBase {
       State::ISSUED => todo!(),
       State::EXECUTING => self.attempt_receive_ack(),
 
-      State::COMPLETED => return,  // should never occur
+      State::COMPLETED => (),  // should never occur
     }
   }
 
@@ -56,7 +56,7 @@ impl PublisherBase {
     match self.command_ack_receiver.take_next_sample() {
       // acknowledgement received, service completed
       Ok(Some(_ack)) => self.current_state = State::COMPLETED,
-      Ok(None) => return,
+      Ok(None) => (),
       Err(_) => println!("Error receiving ack sample"),
     }
   }
