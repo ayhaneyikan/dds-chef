@@ -12,7 +12,6 @@ impl SimpleCommand {
     }
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SimpleCommandAck;
 
