@@ -21,10 +21,7 @@ impl PublisherBase {
     }
 
     pub fn check_completed(&self) -> bool {
-        if self.current_state == State::COMPLETED {
-            return true;
-        }
-        false
+        matches!(self.current_state, State::COMPLETED)
     }
 
     pub fn cycle(&mut self) {
@@ -33,7 +30,7 @@ impl PublisherBase {
             State::ISSUED => todo!(),
             State::EXECUTING => self.attempt_receive_ack(),
 
-            State::COMPLETED => (), // should never occur
+            State::COMPLETED => (), // should never cycle if completed
         }
     }
 
