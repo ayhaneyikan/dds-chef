@@ -1,8 +1,3 @@
-/// defines the states a control service transitions through during execution
-#[derive(Debug, Clone, PartialEq)]
-pub enum State {
-    CREATED,
-    ISSUED,
-    EXECUTING,
-    COMPLETED,
-}
+pub mod io;
+pub mod msgs;
+pub mod state;

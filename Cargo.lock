@@ -118,6 +118,10 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
+dependencies = [
+ "rustdds",
+ "serde",
+]
 
 [[package]]
 name = "core-foundation-sys"
@@ -130,7 +134,6 @@ name = "driver"
 version = "0.1.0"
 dependencies = [
  "common",
- "messages",
  "rustdds",
 ]
 
@@ -419,13 +422,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d61c719bcfbcf5d62b3a09efa6088de8c54bc0bfcd3ea7ae39fcc186108b8de1"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "messages"
-version = "0.1.0"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -759,7 +755,6 @@ name = "sub"
 version = "0.1.0"
 dependencies = [
  "common",
- "messages",
  "rustdds",
 ]
 
