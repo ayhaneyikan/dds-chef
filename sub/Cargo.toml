@@ -7,5 +7,4 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-messages = { path = "../messages" }
 rustdds = "0.8.5"
