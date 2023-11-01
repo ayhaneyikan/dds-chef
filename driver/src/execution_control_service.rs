@@ -1,22 +1,30 @@
-use common::State;
-use messages::{SimpleCommand, SimpleCommandAck};
-use rustdds::no_key::{DataReader, DataWriter};
+use common::{
+    io::{Receiver, Sender},
+    msgs::{SimpleCommand, SimpleCommandAck},
+    state::State,
+};
 
-pub struct PublisherBase {
+const DOMAIN_ID: u16 = 0;
+
+pub struct ExecutionControlService {
     current_state: State,
-    command_sender: DataWriter<SimpleCommand>,
-    command_ack_receiver: DataReader<SimpleCommandAck>,
+    command_sender: Sender<SimpleCommand>,
+    command_ack_receiver: Receiver<SimpleCommandAck>,
 }
 
-impl PublisherBase {
-    pub fn new(
-        command_sender: DataWriter<SimpleCommand>,
-        command_ack_receiver: DataReader<SimpleCommandAck>,
-    ) -> Self {
+impl ExecutionControlService {
+    /// Creates a new instance of the execution control service
+    ///
+    /// Includes creation of DDS sender and receiver instances
+    pub fn new() -> Self {
         Self {
             current_state: State::CREATED,
-            command_sender,
-            command_ack_receiver,
+            command_sender: Sender::new(DOMAIN_ID, String::from("simple_command"), None),
+            command_ack_receiver: Receiver::new(
+                DOMAIN_ID,
+                String::from("simple_command_ack"),
+                None,
+            ),
         }
     }
 
@@ -42,7 +50,8 @@ impl PublisherBase {
 
         // create and send command
         let data = SimpleCommand::new(50, 4.4);
-        self.command_sender.write(data, None).unwrap();
+        // TODO: implement thorough error handling
+        self.command_sender.send(data);
 
         println!("Command sent...");
     }
@@ -52,7 +61,7 @@ impl PublisherBase {
     /// marks state as `COMPLETED` if received, otherwise no side effects
     fn attempt_receive_ack(&mut self) {
         // attempt to read in sample
-        match self.command_ack_receiver.take_next_sample() {
+        match self.command_ack_receiver.receive() {
             // acknowledgement received, service completed
             Ok(Some(_ack)) => self.current_state = State::COMPLETED,
             Ok(None) => (),
