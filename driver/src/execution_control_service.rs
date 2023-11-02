@@ -14,8 +14,6 @@ pub struct ExecutionControlService {
 
 impl ExecutionControlService {
     /// Creates a new instance of the execution control service
-    ///
-    /// Includes creation of DDS sender and receiver instances
     pub fn new() -> Self {
         Self {
             current_state: State::CREATED,
@@ -61,11 +59,9 @@ impl ExecutionControlService {
     /// marks state as `COMPLETED` if received, otherwise no side effects
     fn attempt_receive_ack(&mut self) {
         // attempt to read in sample
-        match self.command_ack_receiver.receive() {
+        if let Some(_ack) = self.command_ack_receiver.receive() {
             // acknowledgement received, service completed
-            Ok(Some(_ack)) => self.current_state = State::COMPLETED,
-            Ok(None) => (),
-            Err(_) => println!("Error receiving ack sample"),
+            self.current_state = State::COMPLETED;
         }
     }
 }

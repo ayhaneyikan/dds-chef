@@ -1,5 +1,4 @@
 use rustdds::{
-    dds::ReadError,
     no_key::{DataReader, DataWriter},
     CDRDeserializerAdapter, CDRSerializerAdapter, DomainParticipant, Publisher, QosPolicies,
     QosPolicyBuilder, Subscriber, Topic, TopicKind,
@@ -26,7 +25,7 @@ where
     /// Creates new Sender within given domain for a given topic
     ///
     /// Handles creation of DDS components and maintains internally:
-    /// - Tarticipant
+    /// - Participant
     /// - Topic
     /// - Publisher
     /// - DataWriter
@@ -83,6 +82,13 @@ impl<T> Receiver<T>
 where
     T: 'static + Debug + for<'de> serde::Deserialize<'de>,
 {
+    /// Creates new Receiver within given domain for a given topic
+    ///
+    /// Handles creation of DDS components and maintains internally:
+    /// - Participant
+    /// - Topic
+    /// - Subscriber
+    /// - DataReader
     pub fn new(domain_id: u16, topic_name: String, topic_desc: Option<String>) -> Self {
         // create domain participant and qos policies
         let participant = DomainParticipant::new(domain_id).unwrap();
@@ -114,11 +120,11 @@ where
         }
     }
 
-    pub fn receive(&mut self) -> Result<Option<T>, ReadError> {
+    /// Attempts to receive a given message via DDS from this Receiver's topic.
+    pub fn receive(&mut self) -> Option<T> {
         match self.reader.take_next_sample() {
-            Ok(Some(msg)) => Ok(Some(msg.into_value())),
-            Ok(None) => Ok(None),
-            Err(e) => Err(e),
+            Ok(Some(msg)) => Some(msg.into_value()),
+            _ => None,
         }
     }
 }

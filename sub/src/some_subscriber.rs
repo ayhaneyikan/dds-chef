@@ -28,7 +28,7 @@ impl SubscriberBase {
 
     pub fn cycle(&mut self) {
         // attempt to read in a sample
-        if let Ok(Some(sample)) = self.command_receiver.receive() {
+        if let Some(sample) = self.command_receiver.receive() {
             println!("Sample received: {:?}", &sample);
 
             // store command received
@@ -46,6 +46,7 @@ impl SubscriberBase {
 
             self.completion_status = true;
         }
+        // TODO: handle error case?
 
         // otherwise no message received
     }
