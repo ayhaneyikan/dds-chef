@@ -4,3 +4,5 @@ members = [
   "driver",
   "sub",
 ]
+
+# TODO: check out [profile] table options for binary optimization settings
