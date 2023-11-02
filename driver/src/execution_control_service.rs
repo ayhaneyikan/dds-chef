@@ -14,7 +14,7 @@ pub struct ExecutionControlService {
 
 impl ExecutionControlService {
     /// Creates a new instance of the execution control service
-    pub fn new() -> Self {
+    pub fn new(in_file: String) -> Self {
         Self {
             current_state: State::CREATED,
             command_sender: Sender::new(DOMAIN_ID, String::from("simple_command"), None),
