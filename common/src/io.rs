@@ -1,7 +1,8 @@
 use rustdds::{
     dds::ReadError,
     no_key::{DataReader, DataWriter},
-    CDRDeserializerAdapter, CDRSerializerAdapter, DomainParticipant, QosPolicyBuilder, TopicKind,
+    CDRDeserializerAdapter, CDRSerializerAdapter, DomainParticipant, Publisher, QosPolicies,
+    QosPolicyBuilder, Subscriber, Topic, TopicKind,
 };
 use serde::Serialize;
 use std::fmt::Debug;
@@ -11,6 +12,10 @@ pub struct Sender<T>
 where
     T: Debug + Serialize,
 {
+    _participant: DomainParticipant,
+    _qos: QosPolicies,
+    _topic: Topic,
+    _publisher: Publisher,
     writer: DataWriter<T>,
 }
 
@@ -18,6 +23,13 @@ impl<T> Sender<T>
 where
     T: Debug + Serialize,
 {
+    /// Creates new Sender within given domain for a given topic
+    ///
+    /// Handles creation of DDS components and maintains internally:
+    /// - Tarticipant
+    /// - Topic
+    /// - Publisher
+    /// - DataWriter
     pub fn new(domain_id: u16, topic_name: String, topic_desc: Option<String>) -> Self {
         // create domain participant and qos policies
         let participant = DomainParticipant::new(domain_id).unwrap();
@@ -36,13 +48,20 @@ where
         // create publisher and data writer
         let publisher = participant.create_publisher(&qos).unwrap();
 
+        let writer = publisher
+            .create_datawriter_no_key::<T, CDRSerializerAdapter<_>>(&topic, None)
+            .unwrap();
+
         Self {
-            writer: publisher
-                .create_datawriter_no_key::<T, CDRSerializerAdapter<_>>(&topic, None)
-                .unwrap(),
+            _participant: participant,
+            _qos: qos,
+            _topic: topic,
+            _publisher: publisher,
+            writer,
         }
     }
 
+    /// Sends the given message via DDS to this Sender's topic.
     pub fn send(&self, msg: T) {
         self.writer.write(msg, None).unwrap();
     }
@@ -53,6 +72,10 @@ pub struct Receiver<T>
 where
     T: 'static + Debug + for<'de> serde::Deserialize<'de>,
 {
+    _participant: DomainParticipant,
+    _qos: QosPolicies,
+    _topic: Topic,
+    _subscriber: Subscriber,
     reader: DataReader<T>,
 }
 
@@ -78,10 +101,16 @@ where
         // create subscriber
         let subscriber = participant.create_subscriber(&qos).unwrap();
 
+        let reader = subscriber
+            .create_datareader_no_key::<T, CDRDeserializerAdapter<_>>(&topic, None)
+            .unwrap();
+
         Self {
-            reader: subscriber
-                .create_datareader_no_key::<T, CDRDeserializerAdapter<_>>(&topic, None)
-                .unwrap(),
+            _participant: participant,
+            _qos: qos,
+            _topic: topic,
+            _subscriber: subscriber,
+            reader,
         }
     }
 
