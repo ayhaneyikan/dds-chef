@@ -34,3 +34,13 @@ handled gracefully and sensibly.
 For the time being, each service is compiled as its own binary and must be run
 manually on separate terminals. I hope to utilize something simpler in the
 future to make it a one-command process.
+
+Open a terminal and run the subscriber binary using
+```bash
+cargo run --bin sub
+```
+
+Open a second terminal and run the driver binary using
+```bash
+cargo run --bin driver
+```
