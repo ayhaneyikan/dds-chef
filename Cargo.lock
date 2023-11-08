@@ -119,6 +119,7 @@ dependencies = [
 name = "common"
 version = "0.1.0"
 dependencies = [
+ "objectives",
  "rustdds",
  "serde",
 ]
@@ -533,6 +534,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39e3200413f237f41ab11ad6d161bc7239c84dcb631773ccd7de3dfe4b5c267c"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "objectives"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
