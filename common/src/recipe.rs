@@ -18,15 +18,13 @@ impl Recipe {
         if !Self::is_yaml(in_file_path) {
             return Err("Provided recipe file must be a YAML file".to_string());
         }
-
         // check that file exists
         if !std::path::Path::new(in_file_path).exists() {
             return Err("Unable to locate file at: ".to_string() + in_file_path);
         }
-
         // read file contents
         match std::fs::read_to_string(in_file_path) {
-            Ok(contents) => serde_yaml::from_str::<Recipe>(&contents).map_err(|e| e.to_string()),
+            Ok(contents) => serde_yaml::from_str::<Self>(&contents).map_err(|e| e.to_string()),
             Err(e) => Err(e.to_string()),
         }
     }

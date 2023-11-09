@@ -7,14 +7,14 @@ use common::{
 
 const DOMAIN_ID: u16 = 0;
 
-pub struct HeadChefControlService {
+pub struct HeadChefService {
     command_sender: Sender<SimpleCommand>,
     command_ack_receiver: Receiver<SimpleCommandAck>,
     current_state: State,
     recipe: Recipe,
 }
 
-impl HeadChefControlService {
+impl HeadChefService {
     /// Creates a new instance of the execution control service
     pub fn new(recipe: Recipe) -> Self {
         Self {

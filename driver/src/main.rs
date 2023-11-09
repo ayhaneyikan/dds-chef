@@ -2,7 +2,7 @@ mod execution_control_service;
 use std::{env, thread::sleep, time::Duration};
 
 use common::recipe::Recipe;
-use execution_control_service::HeadChefControlService;
+use execution_control_service::HeadChefService;
 
 fn retreive_filename() -> Option<String> {
     // read in mission plan file name
@@ -19,13 +19,13 @@ fn retreive_filename() -> Option<String> {
 }
 
 fn main() {
-    let mut p: HeadChefControlService;
+    let mut p: HeadChefService;
 
     // attempt to read in recipe file and initialize control service
     if let Some(file_name) = retreive_filename() {
         // attempting to read in provided recipe file
         match Recipe::from_file(&file_name) {
-            Ok(recipe) => p = HeadChefControlService::new(recipe),
+            Ok(recipe) => p = HeadChefService::new(recipe),
             Err(e) => {
                 println!("Error reading recipe: {}", e);
                 return;
@@ -33,17 +33,17 @@ fn main() {
         }
     } else {
         // filename not passed in successfully
-        println!("Usage: driver -f <mission-plan-filename>");
+        println!("Usage: driver -f <recipe-filename>");
         return;
     }
 
     // initialization delay
     sleep(Duration::from_secs(5));
 
-    println!("Running Publisher");
+    println!("Beginning chef-ing");
     while !p.check_completed() {
         p.cycle();
     }
 
-    println!("Publisher completed running successfully!");
+    println!("Chef-ing complete!");
 }

@@ -1,4 +1,4 @@
-# DDS Project
+# DDS Chef
 ###### Author: Ayhan Eyikan
 
 This is a simple experiment at creating a network of connected services which
