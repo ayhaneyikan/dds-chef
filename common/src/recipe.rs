@@ -8,7 +8,7 @@ use crate::steps::Step;
 pub struct Recipe {
     title: String,
     description: String,
-    objectives: Vec<Step>,
+    steps: Vec<Step>,
 }
 
 impl Recipe {
