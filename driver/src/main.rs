@@ -1,7 +1,8 @@
 mod execution_control_service;
-use std::{thread::sleep, time::Duration, env};
+use std::{env, thread::sleep, time::Duration};
 
-use execution_control_service::ExecutionControlService;
+use common::recipe::Recipe;
+use execution_control_service::HeadChefControlService;
 
 fn retreive_filename() -> Option<String> {
     // read in mission plan file name
@@ -18,17 +19,23 @@ fn retreive_filename() -> Option<String> {
 }
 
 fn main() {
-    let mut p: ExecutionControlService;
+    let mut p: HeadChefControlService;
+
+    // attempt to read in recipe file and initialize control service
     if let Some(file_name) = retreive_filename() {
-        // initialize publisher service
-        p = ExecutionControlService::new(file_name);
-    }
-    else {
+        // attempting to read in provided recipe file
+        match Recipe::from_file(&file_name) {
+            Ok(recipe) => p = HeadChefControlService::new(recipe),
+            Err(e) => {
+                println!("Error reading recipe: {}", e);
+                return;
+            }
+        }
+    } else {
         // filename not passed in successfully
         println!("Usage: driver -f <mission-plan-filename>");
         return;
     }
-
 
     // initialization delay
     sleep(Duration::from_secs(5));

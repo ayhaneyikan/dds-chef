@@ -1,28 +1,31 @@
 use common::{
     io::{Receiver, Sender},
     msgs::{SimpleCommand, SimpleCommandAck},
+    recipe::Recipe,
     state::State,
 };
 
 const DOMAIN_ID: u16 = 0;
 
-pub struct ExecutionControlService {
-    current_state: State,
+pub struct HeadChefControlService {
     command_sender: Sender<SimpleCommand>,
     command_ack_receiver: Receiver<SimpleCommandAck>,
+    current_state: State,
+    recipe: Recipe,
 }
 
-impl ExecutionControlService {
+impl HeadChefControlService {
     /// Creates a new instance of the execution control service
-    pub fn new(in_file: String) -> Self {
+    pub fn new(recipe: Recipe) -> Self {
         Self {
-            current_state: State::CREATED,
             command_sender: Sender::new(DOMAIN_ID, String::from("simple_command"), None),
             command_ack_receiver: Receiver::new(
                 DOMAIN_ID,
                 String::from("simple_command_ack"),
                 None,
             ),
+            current_state: State::CREATED,
+            recipe,
         }
     }
 
