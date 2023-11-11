@@ -2,8 +2,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::steps::Step;
 
-/// Represents a cooking recipe. The key portion being the `objectives` vector
-/// which stores a list of cooking steps to be carried out by various appliances
+/// Represents a cooking recipe
+///
+/// #### Fields
+/// - `title` of the recipe
+/// - `description` of the recipe
+/// - `steps` a vector of cooking `Step`s required to complete the recipe
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Recipe {
     title: String,
@@ -12,7 +16,17 @@ pub struct Recipe {
 }
 
 impl Recipe {
-    /// Attempts to create a recipe from the given path to
+    pub fn get_title(&self) -> &String {
+        &self.title
+    }
+    pub fn get_description(&self) -> &String {
+        &self.description
+    }
+    pub fn get_steps(&self) -> &Vec<Step> {
+        &self.steps
+    }
+
+    /// Attempts to create a recipe from the given file path
     pub fn from_file(in_file_path: &str) -> Result<Self, String> {
         // ensure given file is a YAML
         if !Self::is_yaml(in_file_path) {

@@ -5,8 +5,9 @@ use common::{
     state::State,
 };
 
-const DOMAIN_ID: u16 = 0;
-
+/// Head Chef which oversees "cooking" of the given recipe
+///
+/// This is done by delegating various steps to relevant appliances
 pub struct HeadChefService {
     command_sender: Sender<SimpleCommand>,
     command_ack_receiver: Receiver<SimpleCommandAck>,
@@ -18,34 +19,43 @@ impl HeadChefService {
     /// Creates a new instance of the execution control service
     pub fn new(recipe: Recipe) -> Self {
         Self {
-            command_sender: Sender::new(DOMAIN_ID, String::from("simple_command"), None),
-            command_ack_receiver: Receiver::new(
-                DOMAIN_ID,
-                String::from("simple_command_ack"),
-                None,
-            ),
+            command_sender: Sender::new("simple_command".to_string(), None),
+            command_ack_receiver: Receiver::new("simple_command_ack".to_string(), None),
             current_state: State::CREATED,
             recipe,
         }
     }
 
+    /// Returns boolean indicating whether the recipe is still being "cooked"
     pub fn check_completed(&self) -> bool {
         matches!(self.current_state, State::COMPLETED)
     }
 
+    /// Work to be carried out each iteration of the service
     pub fn cycle(&mut self) {
         match self.current_state {
-            State::CREATED => self.send_msg(),
-            State::ISSUED => todo!(),
+            State::CREATED => self.handle_created(),
+            State::ISSUED => (),    // will never occur in the Head Chef
             State::EXECUTING => self.attempt_receive_ack(),
-
-            State::COMPLETED => (), // should never cycle if completed
+            State::COMPLETED => (), // should not cycle if COMPLETED
         }
     }
 
-    /// creates and sends command message
+    /// Carries out necessary service initialization when the service is created
+    fn handle_created(&mut self) {
+        println!("Chef clocked in, studying a new recipe: {}", self.recipe.get_title());
+
+        println!("Updating menus with a thorough description: {}", self.recipe.get_description());
+
+        // TODO processing the recipe
+
+        self.current_state = State::EXECUTING;
+    }
+
+
+    /// Creates and sends command message
     ///
-    /// marks state as `EXECUTING`
+    /// Marks state as `EXECUTING`
     fn send_msg(&mut self) {
         self.current_state = State::EXECUTING;
 
@@ -57,9 +67,9 @@ impl HeadChefService {
         println!("Command sent...");
     }
 
-    /// attempts to receive command acknowledgement
+    /// Attempts to receive command acknowledgement
     ///
-    /// marks state as `COMPLETED` if received, otherwise no side effects
+    /// Marks state as `COMPLETED` if received, otherwise no side effects
     fn attempt_receive_ack(&mut self) {
         // attempt to read in sample
         if let Some(_ack) = self.command_ack_receiver.receive() {

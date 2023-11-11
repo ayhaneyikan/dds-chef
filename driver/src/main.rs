@@ -1,18 +1,18 @@
-mod execution_control_service;
+mod head_chef_service;
 use std::{env, thread::sleep, time::Duration};
 
 use common::recipe::Recipe;
-use execution_control_service::HeadChefService;
+use head_chef_service::HeadChefService;
 
+/// Helper which attempts to retrieve a filename from provided command line args
 fn retreive_filename() -> Option<String> {
-    // read in mission plan file name
+    // read in command line args
     let args: Vec<String> = env::args().collect();
 
     let mut in_file = None;
     for (i, a) in args.iter().enumerate() {
         if a == "-f" && i + 1 < args.len() {
             in_file = Some(args[i + 1].clone());
-            // TODO: perform some check for existance/validity of filename
         }
     }
     in_file

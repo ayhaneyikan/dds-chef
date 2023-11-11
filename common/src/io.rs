@@ -6,7 +6,10 @@ use rustdds::{
 use serde::Serialize;
 use std::fmt::Debug;
 
-/// A sender instance for sending some message type T
+/// Constant id representing the DDS domain
+const DOMAIN_ID: u16 = 0;
+
+/// A sender instance for sending messages of type T
 pub struct Sender<T>
 where
     T: Debug + Serialize,
@@ -29,9 +32,9 @@ where
     /// - Topic
     /// - Publisher
     /// - DataWriter
-    pub fn new(domain_id: u16, topic_name: String, topic_desc: Option<String>) -> Self {
+    pub fn new(topic_name: String, topic_desc: Option<String>) -> Self {
         // create domain participant and qos policies
-        let participant = DomainParticipant::new(domain_id).unwrap();
+        let participant = DomainParticipant::new(DOMAIN_ID).unwrap();
         let qos = QosPolicyBuilder::new().build();
 
         // create topic
@@ -66,7 +69,7 @@ where
     }
 }
 
-/// A receiver instance for receiving some message type T
+/// A receiver instance for receiving messages of type T
 pub struct Receiver<T>
 where
     T: 'static + Debug + for<'de> serde::Deserialize<'de>,
@@ -89,9 +92,9 @@ where
     /// - Topic
     /// - Subscriber
     /// - DataReader
-    pub fn new(domain_id: u16, topic_name: String, topic_desc: Option<String>) -> Self {
+    pub fn new(topic_name: String, topic_desc: Option<String>) -> Self {
         // create domain participant and qos policies
-        let participant = DomainParticipant::new(domain_id).unwrap();
+        let participant = DomainParticipant::new(DOMAIN_ID).unwrap();
         let qos = QosPolicyBuilder::new().build();
 
         // create topic

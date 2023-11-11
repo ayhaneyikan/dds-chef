@@ -3,8 +3,6 @@ use common::{
     msgs::{SimpleCommand, SimpleCommandAck},
 };
 
-const DOMAIN_ID: u16 = 0;
-
 pub struct SubscriberBase {
     completion_status: bool,
     last_command: Option<SimpleCommand>,
@@ -17,8 +15,8 @@ impl SubscriberBase {
         Self {
             completion_status: false,
             last_command: None,
-            command_receiver: Receiver::new(DOMAIN_ID, String::from("simple_command"), None),
-            command_ack_sender: Sender::new(DOMAIN_ID, String::from("simple_command_ack"), None),
+            command_receiver: Receiver::new("simple_command".to_string(), None),
+            command_ack_sender: Sender::new("simple_command_ack".to_string(), None),
         }
     }
 
