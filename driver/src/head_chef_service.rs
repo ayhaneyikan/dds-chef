@@ -47,6 +47,11 @@ impl HeadChefService {
 
         println!("Updating menus with a thorough description: {}", self.recipe.get_description());
 
+        // iterate through recipe steps
+        for s in self.recipe.get_steps() {
+            println!("Steps: {:?}", s);
+        }
+
         // TODO processing the recipe
 
         self.current_state = State::EXECUTING;
