@@ -8,28 +8,6 @@ pub struct BeginPreparationCommand {
     side_items: Vec<FoodItem>,
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // TODO: DELETE MSGS BELOW
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

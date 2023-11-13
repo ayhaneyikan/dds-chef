@@ -1,6 +1,4 @@
-use common::{state::State, io::Receiver, msgs::BeginPreparationCommand};
-
-
+use common::{io::Receiver, msgs::BeginPreparationCommand, state::State};
 
 pub struct PrepChefService {
     current_state: State,

@@ -7,7 +7,6 @@ pub enum Step {
     PreheatOven(u8),
     /// Bake given food item for given time
     Bake(FoodItem, u32),
-    
 }
 
 /// Describes the space of possible food items that may make up a recipe

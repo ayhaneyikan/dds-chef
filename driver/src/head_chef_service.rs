@@ -35,7 +35,7 @@ impl HeadChefService {
     pub fn cycle(&mut self) {
         match self.current_state {
             State::CREATED => self.handle_created(),
-            State::ISSUED => (),    // will never occur in the Head Chef
+            State::ISSUED => (), // will never occur in the Head Chef
             State::EXECUTING => self.attempt_receive_ack(),
             State::COMPLETED => (), // should not cycle if COMPLETED
         }
@@ -43,9 +43,15 @@ impl HeadChefService {
 
     /// Carries out necessary service initialization when the service is created
     fn handle_created(&mut self) {
-        println!("Chef clocked in, studying a new recipe: {}", self.recipe.get_title());
+        println!(
+            "Chef clocked in, studying a new recipe: {}",
+            self.recipe.get_title()
+        );
 
-        println!("Updating menus with a thorough description: {}", self.recipe.get_description());
+        println!(
+            "Updating menus with a thorough description: {}",
+            self.recipe.get_description()
+        );
 
         // iterate through recipe steps
         for s in self.recipe.get_steps() {
@@ -56,7 +62,6 @@ impl HeadChefService {
 
         self.current_state = State::EXECUTING;
     }
-
 
     /// Creates and sends command message
     ///
