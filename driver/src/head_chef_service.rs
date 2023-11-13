@@ -9,9 +9,9 @@ use common::{
 ///
 /// This is done by delegating various steps to relevant appliances
 pub struct HeadChefService {
+    current_state: State,
     command_sender: Sender<SimpleCommand>,
     command_ack_receiver: Receiver<SimpleCommandAck>,
-    current_state: State,
     recipe: Recipe,
 }
 
@@ -19,9 +19,9 @@ impl HeadChefService {
     /// Creates a new instance of the execution control service
     pub fn new(recipe: Recipe) -> Self {
         Self {
+            current_state: State::CREATED,
             command_sender: Sender::new("simple_command".to_string(), None),
             command_ack_receiver: Receiver::new("simple_command_ack".to_string(), None),
-            current_state: State::CREATED,
             recipe,
         }
     }

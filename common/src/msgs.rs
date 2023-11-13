@@ -1,5 +1,37 @@
 use serde::{Deserialize, Serialize};
 
+use crate::steps::FoodItem;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BeginPreparationCommand {
+    main_items: Vec<FoodItem>,
+    side_items: Vec<FoodItem>,
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TODO: DELETE MSGS BELOW
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimpleCommand {
     pub value: i32,

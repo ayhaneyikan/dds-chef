@@ -2,7 +2,9 @@
 resolver = "2"
 members = [
   "common",
+  "cook-chef",
   "driver",
+  "prep-chef",
   "sub",
 ]
 
