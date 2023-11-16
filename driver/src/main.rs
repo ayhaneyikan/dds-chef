@@ -25,7 +25,13 @@ fn main() {
     if let Some(file_name) = retreive_filename() {
         // attempting to read in provided recipe file
         match Recipe::from_file(&file_name) {
-            Ok(recipe) => p = HeadChefService::new(recipe),
+            Ok(recipe) => {
+                if recipe.get_steps().len() < 1 {
+                    println!("Recipe must contain a non-zero number of steps");
+                    return;
+                }
+                p = HeadChefService::new(recipe)
+            }
             Err(e) => {
                 println!("Error reading recipe: {}", e);
                 return;

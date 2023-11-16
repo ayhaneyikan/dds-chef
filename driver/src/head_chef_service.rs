@@ -1,28 +1,36 @@
+use std::{thread::sleep, time::Duration};
+
 use common::{
     io::{Receiver, Sender},
-    msgs::{SimpleCommand, SimpleCommandAck},
+    msgs::{PrepareCommand, PrepareCommandAck, SimpleCommand, SimpleCommandAck},
     recipe::Recipe,
     state::State,
+    steps::Step,
 };
 
 /// Head Chef which oversees "cooking" of the given recipe
 ///
 /// This is done by delegating various steps to relevant appliances
 pub struct HeadChefService {
-    current_state: State,
-    command_sender: Sender<SimpleCommand>,
-    command_ack_receiver: Receiver<SimpleCommandAck>,
     recipe: Recipe,
+    step_index: usize,
+    awaiting_ack: bool,
+    current_state: State,
+    // senders / receivers
+    prep_command_sender: Sender<PrepareCommand>,
+    prep_command_ack_receiver: Receiver<PrepareCommandAck>,
 }
 
 impl HeadChefService {
     /// Creates a new instance of the execution control service
     pub fn new(recipe: Recipe) -> Self {
         Self {
-            current_state: State::CREATED,
-            command_sender: Sender::new("simple_command".to_string(), None),
-            command_ack_receiver: Receiver::new("simple_command_ack".to_string(), None),
             recipe,
+            step_index: 0,
+            awaiting_ack: false,
+            current_state: State::CREATED,
+            prep_command_sender: Sender::new("prepare_command".to_string(), None),
+            prep_command_ack_receiver: Receiver::new("prepare_command_ack".to_string(), None),
         }
     }
 
@@ -34,33 +42,48 @@ impl HeadChefService {
     /// Work to be carried out each iteration of the service
     pub fn cycle(&mut self) {
         match self.current_state {
-            State::CREATED => self.handle_created(),
-            State::ISSUED => (), // will never occur in the Head Chef
-            State::EXECUTING => self.attempt_receive_ack(),
-            State::COMPLETED => (), // should not cycle if COMPLETED
+            // head chef is automatically issued upon creation
+            State::CREATED => self.current_state = State::ISSUED,
+            State::ISSUED => self.on_issued(),
+            State::EXECUTING => self.on_executing(),
+            // shouldn't enter cycle() while COMPLETED
+            State::COMPLETED => (),
         }
     }
 
-    /// Carries out necessary service initialization when the service is created
-    fn handle_created(&mut self) {
+    /// After service creation, begin initialization prior to preparing recipe
+    fn on_issued(&mut self) {
+        println!("Head chef opening up the restaurant for the evening");
+        sleep(Duration::from_secs(15));
         println!(
-            "Chef clocked in, studying a new recipe: {}",
+            "The recipe for tonight appears to be {}",
             self.recipe.get_title()
         );
+        self.current_state = State::EXECUTING;
+    }
 
-        println!(
-            "Updating menus with a thorough description: {}",
-            self.recipe.get_description()
-        );
+    /// After initialization, delegate necessary preparation and cooking tasks
+    fn on_executing(&mut self) {
+        let curr_step;
 
-        // iterate through recipe steps
-        for s in self.recipe.get_steps() {
-            println!("Steps: {:?}", s);
+        // check if done with recipe steps yet or not
+        match self.recipe.get_steps().get(self.step_index) {
+            // completed case
+            None => {
+                self.current_state = State::COMPLETED;
+                return;
+            }
+            Some(step) => curr_step = step,
         }
 
-        // TODO processing the recipe
+        // TODO: LOGIC REGARDING AWAITING ACK AND SENDING MESSAGES BELOW
 
-        self.current_state = State::EXECUTING;
+        match curr_step {
+            Step::Prepare(item) => {
+                let prep_command = PrepareCommand::new(item.clone());
+            }
+            Step::Cook(_, _) => todo!(),
+        }
     }
 
     /// Creates and sends command message
@@ -72,7 +95,7 @@ impl HeadChefService {
         // create and send command
         let data = SimpleCommand::new(50, 4.4);
         // TODO: implement thorough error handling
-        self.command_sender.send(data);
+        // self.prep_command_sender.send(data);
 
         println!("Command sent...");
     }
@@ -82,7 +105,7 @@ impl HeadChefService {
     /// Marks state as `COMPLETED` if received, otherwise no side effects
     fn attempt_receive_ack(&mut self) {
         // attempt to read in sample
-        if let Some(_ack) = self.command_ack_receiver.receive() {
+        if let Some(_ack) = self.prep_command_ack_receiver.receive() {
             // acknowledgement received, service completed
             self.current_state = State::COMPLETED;
         }

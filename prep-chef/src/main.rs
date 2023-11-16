@@ -1,6 +1,6 @@
-use crate::prep_chef::PrepChefService;
-
 mod prep_chef;
+
+use crate::prep_chef::PrepChefService;
 
 fn main() {
     // initialize prep chef service

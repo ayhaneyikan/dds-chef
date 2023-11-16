@@ -1,11 +1,42 @@
+use std::time::Duration;
+
 use serde::{Deserialize, Serialize};
 
 use crate::steps::FoodItem;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct BeginPreparationCommand {
-    main_items: Vec<FoodItem>,
-    side_items: Vec<FoodItem>,
+pub struct PrepareCommand {
+    item: FoodItem,
+}
+
+impl PrepareCommand {
+    pub fn new(item: FoodItem) -> Self {
+        Self { item }
+    }
+
+    pub fn get_item(&self) -> FoodItem {
+        self.item
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PrepareCommandAck {
+    command: PrepareCommand,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CookCommand {
+    item: FoodItem,
+    time: Duration,
+}
+
+impl CookCommand {
+    pub fn get_item(&self) -> FoodItem {
+        self.item
+    }
+    pub fn get_duration(&self) -> Duration {
+        self.time
+    }
 }
 
 // TODO: DELETE MSGS BELOW
