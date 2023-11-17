@@ -3,7 +3,7 @@ use rustdds::{
     CDRDeserializerAdapter, CDRSerializerAdapter, DomainParticipant, Publisher, QosPolicies,
     QosPolicyBuilder, Subscriber, Topic, TopicKind,
 };
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::fmt::Debug;
 
 /// Constant id representing the DDS domain
@@ -72,7 +72,7 @@ where
 /// A receiver instance for receiving messages of type T
 pub struct Receiver<T>
 where
-    T: 'static + Debug + for<'de> serde::Deserialize<'de>,
+    T: 'static + Debug + for<'de> Deserialize<'de>,
 {
     _participant: DomainParticipant,
     _qos: QosPolicies,
@@ -83,7 +83,7 @@ where
 
 impl<T> Receiver<T>
 where
-    T: 'static + Debug + for<'de> serde::Deserialize<'de>,
+    T: 'static + Debug + for<'de> Deserialize<'de>,
 {
     /// Creates new Receiver within given domain for a given topic
     ///
