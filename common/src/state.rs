@@ -5,4 +5,5 @@ pub enum State {
     ISSUED,
     EXECUTING,
     COMPLETED,
+    FAILED(String),
 }

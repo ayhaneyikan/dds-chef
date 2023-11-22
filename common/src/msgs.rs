@@ -13,7 +13,6 @@ impl PrepareCommand {
     pub fn new(item: FoodItem) -> Self {
         Self { item }
     }
-
     pub fn get_item(&self) -> FoodItem {
         self.item
     }
@@ -31,12 +30,20 @@ pub struct CookCommand {
 }
 
 impl CookCommand {
+    pub fn new(item: FoodItem, time: Duration) -> Self {
+        Self { item, time }
+    }
     pub fn get_item(&self) -> FoodItem {
         self.item
     }
     pub fn get_duration(&self) -> Duration {
         self.time
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CookCommandAck {
+    command: CookCommand,
 }
 
 // TODO: DELETE MSGS BELOW

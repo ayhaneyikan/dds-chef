@@ -1,9 +1,10 @@
 use rustdds::{
+    dds::WriteError,
     no_key::{DataReader, DataWriter},
     CDRDeserializerAdapter, CDRSerializerAdapter, DomainParticipant, Publisher, QosPolicies,
     QosPolicyBuilder, Subscriber, Topic, TopicKind,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 /// Constant id representing the DDS domain
@@ -64,8 +65,8 @@ where
     }
 
     /// Sends the given message via DDS to this Sender's topic.
-    pub fn send(&self, msg: T) {
-        self.writer.write(msg, None).unwrap();
+    pub fn send(&self, msg: T) -> Result<(), WriteError<T>> {
+        self.writer.write(msg, None)
     }
 }
 
