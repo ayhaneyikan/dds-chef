@@ -26,7 +26,7 @@ fn main() {
         // attempting to read in provided recipe file
         match Recipe::from_file(&file_name) {
             Ok(recipe) => {
-                if recipe.get_steps().len() < 1 {
+                if recipe.get_steps().is_empty() {
                     println!("Recipe must contain a non-zero number of steps");
                     return;
                 }
@@ -49,6 +49,13 @@ fn main() {
     println!("Beginning chef-ing");
     while !p.check_completed() {
         p.cycle();
+        if p.check_failed() {
+            println!(
+                "Head chef has failed with no option for recovery: {}",
+                p.get_failure_msg().unwrap()
+            );
+            return;
+        }
     }
 
     println!("Chef-ing complete!");
