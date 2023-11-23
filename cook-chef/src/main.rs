@@ -9,6 +9,13 @@ fn main() {
     println!("Cook chef begining cooking");
     while !cc.check_completed() {
         cc.cycle();
+        if cc.check_failed() {
+            println!(
+                "Head chef has failed with no option for recovery: {}",
+                cc.get_failure_msg().unwrap()
+            );
+            return;
+        }
     }
 
     println!("Cook chef completed cooking");
