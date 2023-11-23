@@ -46,6 +46,4 @@ impl CookCommand {
 
 /// CommandAck indicating reception of a cooking command
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CookCommandAck {
-    command: CookCommand,
-}
+pub struct CookCommandAck;
