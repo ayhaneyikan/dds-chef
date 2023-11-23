@@ -5,7 +5,9 @@ members = [
   "cook-chef",
   "driver",
   "prep-chef",
-  "sub",
 ]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
 
 # TODO: check out [profile] table options for binary optimization settings
