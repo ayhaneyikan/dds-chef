@@ -2,7 +2,7 @@ use std::{thread::sleep, time::Duration};
 
 use common::{
     io::{Receiver, Sender},
-    msgs::{PrepareCommand, PrepareCommandAck, CookCommand, CookCommandAck},
+    msgs::{PrepareCommand, PrepareCommandAck, CookCommand, CookCommandAck, CommandDone},
     recipe::Recipe,
     state::State,
     steps::Step,
@@ -10,11 +10,20 @@ use common::{
 
 /// Used within the HeadChefService to track progress executing a recipe
 enum ExecutingState {
+    /// Entrypoint to the executing state, no action currently being taken
     Initial,
+    /// Sending a prep command out
     PrepCmd,
+    /// Awaiting an ack from the prep command receiver
     PrepAck,
+    /// Checking for message indicating completion of the prep step
+    PrepDone,
+    /// Sending a cook command out
     CookCmd,
+    /// Awaiting an ack from the cook command receiver
     CookAck,
+    /// Checking for message indicating completion of the cook step
+    CookDone,
 }
 
 /// Head Chef which oversees "cooking" of the given recipe
@@ -30,8 +39,10 @@ pub struct HeadChefService {
     // senders / receivers
     prep_command_sender: Sender<PrepareCommand>,
     prep_command_ack_receiver: Receiver<PrepareCommandAck>,
+    prep_command_done_receiver: Receiver<CommandDone>,
     cook_command_sender: Sender<CookCommand>,
     cook_command_ack_receiver: Receiver<CookCommandAck>,
+    cook_command_done_receiver: Receiver<CommandDone>,
 }
 
 impl HeadChefService {
@@ -45,8 +56,10 @@ impl HeadChefService {
             // senders / receivers instantiation
             prep_command_sender: Sender::new("prepare_command".to_string(), None),
             prep_command_ack_receiver: Receiver::new("prepare_command_ack".to_string(), None),
+            prep_command_done_receiver: Receiver::new("prepare_command_done".to_string(), None),
             cook_command_sender: Sender::new("cook_command".to_string(), None),
             cook_command_ack_receiver: Receiver::new("cook_command_ack".to_string(), None),
+            cook_command_done_receiver: Receiver::new("cook_command_done".to_string(), None),
         }
     }
 
@@ -129,7 +142,8 @@ impl HeadChefService {
                 self.prep_command_sender
                     .send(prep_command)
                     .unwrap_or_else(|e| {
-                        self.service_state = State::FAILED(format!("DDS write error: {}", e))
+                        self.service_state = State::FAILED(format!("Failed to send prep command: {}", e));
+                        return;
                     });
 
                 println!("Preparation task assigned to less qualified chef");
@@ -138,8 +152,14 @@ impl HeadChefService {
             ExecutingState::PrepAck => {
                 // check to receive ack
                 if let Some(_ack) = self.prep_command_ack_receiver.receive() {
-                    self.executing_state = ExecutingState::PrepAck;
+                    self.executing_state = ExecutingState::PrepDone;
+                }
+            },
+            ExecutingState::PrepDone => {
+                // check for completed message
+                if let Some(_ack) = self.prep_command_done_receiver.receive() {
                     self.step_index += 1;
+                    self.executing_state = ExecutingState::Initial;
                 }
             },
             ExecutingState::CookCmd => {
@@ -157,7 +177,8 @@ impl HeadChefService {
                 self.cook_command_sender
                     .send(cook_command)
                     .unwrap_or_else(|e| {
-                        self.service_state = State::FAILED(format!("DDS write error: {}", e))
+                        self.service_state = State::FAILED(format!("Failed to send cook command: {}", e));
+                        return;
                     });
                 
                     println!("Cooking task assigned to less qualified chef");
@@ -166,8 +187,15 @@ impl HeadChefService {
             ExecutingState::CookAck => {
                 // check to receive ack
                 if let Some(_ack) = self.cook_command_ack_receiver.receive() {
-                    self.executing_state = ExecutingState::CookAck;
+                    self.executing_state = ExecutingState::CookDone;
                     self.step_index += 1;
+                }
+            },
+            ExecutingState::CookDone => {
+                // check for completed message
+                if let Some(_ack) = self.cook_command_done_receiver.receive() {
+                    self.step_index += 1;
+                    self.executing_state = ExecutingState::Initial;
                 }
             },
         };
