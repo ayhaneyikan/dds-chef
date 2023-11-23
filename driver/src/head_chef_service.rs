@@ -2,7 +2,7 @@ use std::{thread::sleep, time::Duration};
 
 use common::{
     io::{Receiver, Sender},
-    msgs::{PrepareCommand, PrepareCommandAck, CookCommand, CookCommandAck, CommandDone},
+    msgs::{CommandDone, CookCommand, CookCommandAck, PrepareCommand, PrepareCommandAck},
     recipe::Recipe,
     state::State,
     steps::Step,
@@ -126,7 +126,7 @@ impl HeadChefService {
                     Step::Prepare(_) => ExecutingState::PrepCmd,
                     Step::Cook(_, _) => ExecutingState::CookCmd,
                 };
-            },
+            }
             ExecutingState::PrepCmd => {
                 // extract item from step and create command
                 let prep_command = match curr_step {
@@ -135,33 +135,34 @@ impl HeadChefService {
                         println!("Executing state didn't match current step type");
                         self.executing_state = ExecutingState::Initial;
                         return;
-                    },
+                    }
                 };
 
                 // send out command
                 self.prep_command_sender
                     .send(prep_command)
                     .unwrap_or_else(|e| {
-                        self.service_state = State::FAILED(format!("Failed to send prep command: {}", e));
+                        self.service_state =
+                            State::FAILED(format!("Failed to send prep command: {}", e));
                         return;
                     });
 
                 println!("Preparation task assigned to less qualified chef");
                 self.executing_state = ExecutingState::PrepAck;
-            },
+            }
             ExecutingState::PrepAck => {
                 // check to receive ack
                 if let Some(_ack) = self.prep_command_ack_receiver.receive() {
                     self.executing_state = ExecutingState::PrepDone;
                 }
-            },
+            }
             ExecutingState::PrepDone => {
                 // check for completed message
                 if let Some(_ack) = self.prep_command_done_receiver.receive() {
                     self.step_index += 1;
                     self.executing_state = ExecutingState::Initial;
                 }
-            },
+            }
             ExecutingState::CookCmd => {
                 // extract item and duration from step and create command
                 let cook_command = match curr_step {
@@ -170,34 +171,35 @@ impl HeadChefService {
                         println!("Executing state didn't match current step type");
                         self.executing_state = ExecutingState::Initial;
                         return;
-                    },
+                    }
                 };
 
                 // send out command
                 self.cook_command_sender
                     .send(cook_command)
                     .unwrap_or_else(|e| {
-                        self.service_state = State::FAILED(format!("Failed to send cook command: {}", e));
+                        self.service_state =
+                            State::FAILED(format!("Failed to send cook command: {}", e));
                         return;
                     });
-                
-                    println!("Cooking task assigned to less qualified chef");
-                    self.executing_state = ExecutingState::CookAck;
-            },
+
+                println!("Cooking task assigned to less qualified chef");
+                self.executing_state = ExecutingState::CookAck;
+            }
             ExecutingState::CookAck => {
                 // check to receive ack
                 if let Some(_ack) = self.cook_command_ack_receiver.receive() {
                     self.executing_state = ExecutingState::CookDone;
                     self.step_index += 1;
                 }
-            },
+            }
             ExecutingState::CookDone => {
                 // check for completed message
                 if let Some(_ack) = self.cook_command_done_receiver.receive() {
                     self.step_index += 1;
                     self.executing_state = ExecutingState::Initial;
                 }
-            },
+            }
         };
     }
 }

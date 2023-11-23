@@ -12,21 +12,19 @@ pub struct CommandDone;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PrepareCommand {
     item: FoodItem,
-}    
+}
 impl PrepareCommand {
     pub fn new(item: FoodItem) -> Self {
         Self { item }
-    }    
+    }
     pub fn get_item(&self) -> FoodItem {
         self.item
-    }    
-}    
+    }
+}
 
 /// CommandAck indicating reception of a prepare command
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PrepareCommandAck;
-
-
 
 /// Command initiating cooking actions
 #[derive(Debug, Serialize, Deserialize)]
