@@ -4,31 +4,36 @@ use serde::{Deserialize, Serialize};
 
 use crate::steps::FoodItem;
 
+/// Message indicating completion of a command
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CommandDone;
+
+/// Command initiating preparation actions
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PrepareCommand {
     item: FoodItem,
-}
-
+}    
 impl PrepareCommand {
     pub fn new(item: FoodItem) -> Self {
         Self { item }
-    }
+    }    
     pub fn get_item(&self) -> FoodItem {
         self.item
-    }
-}
+    }    
+}    
 
+/// CommandAck indicating reception of a prepare command
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PrepareCommandAck {
-    command: PrepareCommand,
-}
+pub struct PrepareCommandAck;
 
+
+
+/// Command initiating cooking actions
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CookCommand {
     item: FoodItem,
     time: Duration,
 }
-
 impl CookCommand {
     pub fn new(item: FoodItem, time: Duration) -> Self {
         Self { item, time }
@@ -41,35 +46,8 @@ impl CookCommand {
     }
 }
 
+/// CommandAck indicating reception of a cooking command
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CookCommandAck {
     command: CookCommand,
-}
-
-// TODO: DELETE MSGS BELOW
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SimpleCommand {
-    pub value: i32,
-    pub version: f32,
-}
-
-impl SimpleCommand {
-    pub fn new(value: i32, version: f32) -> Self {
-        Self { value, version }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SimpleCommandAck;
-
-impl SimpleCommandAck {
-    pub fn new() -> Self {
-        Self
-    }
-}
-impl Default for SimpleCommandAck {
-    fn default() -> Self {
-        Self::new()
-    }
 }
