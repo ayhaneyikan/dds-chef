@@ -6,7 +6,7 @@ fn main() {
     // initialize cook chef service
     let mut cc = CookChefService::new();
 
-    println!("Cook chef begining cooking");
+    println!("Cook chef awaiting instructions");
     while !cc.check_completed() {
         cc.cycle();
         if cc.check_failed() {

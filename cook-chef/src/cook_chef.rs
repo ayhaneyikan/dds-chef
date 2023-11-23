@@ -68,6 +68,7 @@ impl CookChefService {
             self.cooking_item = Some(command.get_item());
             self.cooking_time = Some(command.get_duration());
             self.service_state = State::ISSUED;
+            println!("Instructions received, beginning cooking");
             // send ack
             self.command_ack_sender
                 .send(CookCommandAck)

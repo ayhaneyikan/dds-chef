@@ -63,6 +63,7 @@ impl PrepChefService {
         if let Some(command) = self.command_receiver.receive() {
             self.prep_item = Some(command.get_item());
             self.service_state = State::ISSUED;
+            println!("Instructions received, beginning preparations");
             // send ack
             self.command_ack_sender
                 .send(PrepareCommandAck)

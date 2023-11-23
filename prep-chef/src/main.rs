@@ -6,7 +6,7 @@ fn main() {
     // initialize prep chef service
     let mut pc = PrepChefService::new();
 
-    println!("Prep chef beginning preparations");
+    println!("Prep chef awaiting instructions");
     while !pc.check_completed() {
         pc.cycle();
         if pc.check_failed() {
