@@ -9,7 +9,7 @@ use common::{
 };
 
 /// Used within the HeadChefService to track progress executing a recipe
-enum ExecutingState {
+enum RecipeState {
     /// Entrypoint to the executing state, no action currently being taken
     Initial,
     /// Sending a prep command out
@@ -35,7 +35,7 @@ pub struct HeadChefService {
     step_index: usize,
     // service state management
     service_state: State,
-    executing_state: ExecutingState,
+    recipe_state: RecipeState,
     // senders / receivers
     prep_command_sender: Sender<PrepareCommand>,
     prep_command_ack_receiver: Receiver<PrepareCommandAck>,
@@ -52,7 +52,7 @@ impl HeadChefService {
             recipe,
             step_index: 0,
             service_state: State::CREATED,
-            executing_state: ExecutingState::Initial,
+            recipe_state: RecipeState::Initial,
             // senders / receivers instantiation
             prep_command_sender: Sender::new("prepare_command".to_string(), None),
             prep_command_ack_receiver: Receiver::new("prepare_command_ack".to_string(), None),
@@ -119,27 +119,27 @@ impl HeadChefService {
             Some(step) => step,
         };
 
-        match self.executing_state {
-            ExecutingState::Initial => {
+        match self.recipe_state {
+            RecipeState::Initial => {
                 // transition to appropriate state based on first step
-                self.executing_state = match curr_step {
-                    Step::Prepare(_) => ExecutingState::PrepCmd,
-                    Step::Cook(_, _) => ExecutingState::CookCmd,
+                self.recipe_state = match curr_step {
+                    Step::Prepare(_) => RecipeState::PrepCmd,
+                    Step::Cook(_, _) => RecipeState::CookCmd,
                 };
             }
-            ExecutingState::PrepCmd => {
+            RecipeState::PrepCmd => {
                 // extract item from step and create command
                 let prep_command = match curr_step {
                     Step::Prepare(item) => PrepareCommand::new(*item),
                     _ => {
                         println!("Executing state didn't match current step type");
-                        self.executing_state = ExecutingState::Initial;
+                        self.recipe_state = RecipeState::Initial;
                         return;
                     }
                 };
 
-                println!("Preparation task being assigned to qualified chef");
-                self.executing_state = ExecutingState::PrepAck;
+                println!("Assessing requried preparation tasks");
+                self.recipe_state = RecipeState::PrepAck;
                 // send out command
                 self.prep_command_sender
                     .send(prep_command)
@@ -148,32 +148,34 @@ impl HeadChefService {
                             State::FAILED(format!("Failed to send prep command: {}", e));
                     });
             }
-            ExecutingState::PrepAck => {
+            RecipeState::PrepAck => {
                 // check to receive ack
                 if let Some(_ack) = self.prep_command_ack_receiver.receive() {
-                    self.executing_state = ExecutingState::PrepDone;
+                    self.recipe_state = RecipeState::PrepDone;
+                    println!("Preparation tasks assigned to another chef");
                 }
             }
-            ExecutingState::PrepDone => {
+            RecipeState::PrepDone => {
                 // check for completed message
                 if let Some(_ack) = self.prep_command_done_receiver.receive() {
                     self.step_index += 1;
-                    self.executing_state = ExecutingState::Initial;
+                    self.recipe_state = RecipeState::Initial;
+                    println!("Preparations complete!");
                 }
             }
-            ExecutingState::CookCmd => {
+            RecipeState::CookCmd => {
                 // extract item and duration from step and create command
                 let cook_command = match curr_step {
                     Step::Cook(item, time) => CookCommand::new(*item, *time),
                     _ => {
                         println!("Executing state didn't match current step type");
-                        self.executing_state = ExecutingState::Initial;
+                        self.recipe_state = RecipeState::Initial;
                         return;
                     }
                 };
 
-                self.executing_state = ExecutingState::CookAck;
-                println!("Cooking task being assigned to qualified chef");
+                self.recipe_state = RecipeState::CookAck;
+                println!("Assessing requried cooking tasks");
                 // send out command
                 self.cook_command_sender
                     .send(cook_command)
@@ -182,18 +184,19 @@ impl HeadChefService {
                             State::FAILED(format!("Failed to send cook command: {}", e));
                     });
             }
-            ExecutingState::CookAck => {
+            RecipeState::CookAck => {
                 // check to receive ack
                 if let Some(_ack) = self.cook_command_ack_receiver.receive() {
-                    self.executing_state = ExecutingState::CookDone;
-                    self.step_index += 1;
+                    self.recipe_state = RecipeState::CookDone;
+                    println!("Cooking tasks assigned to another chef");
                 }
             }
-            ExecutingState::CookDone => {
+            RecipeState::CookDone => {
                 // check for completed message
                 if let Some(_ack) = self.cook_command_done_receiver.receive() {
                     self.step_index += 1;
-                    self.executing_state = ExecutingState::Initial;
+                    self.recipe_state = RecipeState::Initial;
+                    println!("Cooking complete!");
                 }
             }
         };
