@@ -1,0 +1,8 @@
+title: test-recipe
+description: some description of the thing
+steps:
+- !Prepare SALMON
+- !Cook
+  - SALMON
+  - secs: 10
+    nanos: 0
