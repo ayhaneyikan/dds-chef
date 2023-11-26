@@ -9,11 +9,8 @@ fn main() {
     println!("Cook chef awaiting instructions");
     while !cc.check_completed() {
         cc.cycle();
-        if cc.check_failed() {
-            println!(
-                "Head chef has failed with no option for recovery: {}",
-                cc.get_failure_msg().unwrap()
-            );
+        if let Some(error_msg) = cc.check_failed() {
+            println!("Cook chef has failed: {}", error_msg);
             return;
         }
     }

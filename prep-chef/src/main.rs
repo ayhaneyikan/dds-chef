@@ -9,11 +9,8 @@ fn main() {
     println!("Prep chef awaiting instructions");
     while !pc.check_completed() {
         pc.cycle();
-        if pc.check_failed() {
-            println!(
-                "Head chef has failed with no option for recovery: {}",
-                pc.get_failure_msg().unwrap()
-            );
+        if let Some(error_msg) = pc.check_failed() {
+            println!("Prep chef has failed: {}", error_msg);
             return;
         }
     }

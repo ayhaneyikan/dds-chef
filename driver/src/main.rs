@@ -49,11 +49,8 @@ fn main() {
     println!("Beginning chef-ing");
     while !p.check_completed() {
         p.cycle();
-        if p.check_failed() {
-            println!(
-                "Head chef has failed with no option for recovery: {}",
-                p.get_failure_msg().unwrap()
-            );
+        if let Some(error_msg) = p.check_failed() {
+            println!("Head chef has failed: {}", error_msg);
             return;
         }
     }

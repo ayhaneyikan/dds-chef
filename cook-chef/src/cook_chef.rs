@@ -34,15 +34,11 @@ impl CookChefService {
     pub fn check_completed(&self) -> bool {
         matches!(self.service_state, State::COMPLETED)
     }
-    /// Returns boolean indicating whether the service failed while "cooking"
-    pub fn check_failed(&self) -> bool {
-        matches!(self.service_state, State::FAILED(_))
-    }
-    /// Returns string containing explanation of reason for failure
+    /// Returns option indicating whether the service failed while "cooking"
     /// ### Returns
     /// - `None` if service is not in `FAILED` state
     /// - `Some(message)` describing the failure if `FAILED`
-    pub fn get_failure_msg(&self) -> Option<&str> {
+    pub fn check_failed(&self) -> Option<&str> {
         if let State::FAILED(error_message) = &self.service_state {
             return Some(error_message);
         }
