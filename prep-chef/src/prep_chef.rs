@@ -112,3 +112,40 @@ impl PrepChefService {
             });
     }
 }
+
+
+/// Test module for the prep chef
+#[cfg(test)]
+mod prep_chef_tests {
+    use common::state::State;
+
+    use crate::prep_chef::PrepChefService;
+
+    /// Tests initial values of chef state variables 
+    #[test]
+    fn initialization() {
+        let chef = PrepChefService::new();
+        assert_eq!(chef.service_state, State::CREATED);
+        assert!(!chef.check_completed());
+        assert!(chef.check_failed().is_none());
+        assert!(chef.prep_item.is_none());
+    }
+
+    /// Ensures chef state doesn't progress without receiving a cycle
+    /// TODO: revisit. This testing format may not even make sense
+    ///         look into best methods for testing infinite loops
+    #[test]
+    fn state_check_no_command() {
+        let mut chef = PrepChefService::new();
+        // cycle a large number of times and check state
+        for _ in 0..10000 {
+            chef.cycle();
+            assert_eq!(chef.service_state, State::CREATED);
+        }
+    }
+
+    /// Checks state progress upon receiving prepare command
+    #[test]
+    fn state_check_command() {
+    }
+}
