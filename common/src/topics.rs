@@ -19,6 +19,6 @@ impl fmt::Display for TopicName {
             TopicName::CookCommandAck => "cook_command_ack",
             TopicName::CookCommandDone => "cook_command_done",
         };
-        write!(f, "{}", topic)
+        write!(f, "{topic}")
     }
 }
