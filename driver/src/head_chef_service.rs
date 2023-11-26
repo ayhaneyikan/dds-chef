@@ -5,7 +5,8 @@ use common::{
     msgs::{CommandDone, CookCommand, CookCommandAck, PrepareCommand, PrepareCommandAck},
     recipe::Recipe,
     state::State,
-    steps::Step, topics::TopicName,
+    steps::Step,
+    topics::TopicName,
 };
 
 /// Used within the HeadChefService to track progress executing a recipe
@@ -55,8 +56,14 @@ impl HeadChefService {
             recipe_state: RecipeState::Initial,
             // senders / receivers instantiation
             prep_command_sender: Sender::new(TopicName::PrepareCommand.to_string(), None),
-            prep_command_ack_receiver: Receiver::new(TopicName::PrepareCommandAck.to_string(), None),
-            prep_command_done_receiver: Receiver::new(TopicName::PrepareCommandDone.to_string(), None),
+            prep_command_ack_receiver: Receiver::new(
+                TopicName::PrepareCommandAck.to_string(),
+                None,
+            ),
+            prep_command_done_receiver: Receiver::new(
+                TopicName::PrepareCommandDone.to_string(),
+                None,
+            ),
             cook_command_sender: Sender::new(TopicName::CookCommand.to_string(), None),
             cook_command_ack_receiver: Receiver::new(TopicName::CookCommandAck.to_string(), None),
             cook_command_done_receiver: Receiver::new(TopicName::CookCommandDone.to_string(), None),

@@ -5,6 +5,7 @@ use common::{
     msgs::{CommandDone, PrepareCommand, PrepareCommandAck},
     state::State,
     steps::FoodItem,
+    topics::TopicName,
 };
 
 pub struct PrepChefService {
@@ -21,9 +22,9 @@ impl PrepChefService {
         Self {
             prep_item: None,
             service_state: State::CREATED,
-            command_receiver: Receiver::new("prepare_command".to_string(), None),
-            command_ack_sender: Sender::new("prepare_command_ack".to_string(), None),
-            command_done_sender: Sender::new("prepare_command_done".to_string(), None),
+            command_receiver: Receiver::new(TopicName::PrepareCommand.to_string(), None),
+            command_ack_sender: Sender::new(TopicName::PrepareCommandAck.to_string(), None),
+            command_done_sender: Sender::new(TopicName::PrepareCommandDone.to_string(), None),
         }
     }
 

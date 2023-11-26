@@ -1,3 +1,4 @@
+use core::fmt;
 
 pub enum TopicName {
     PrepareCommand,
@@ -8,15 +9,16 @@ pub enum TopicName {
     CookCommandDone,
 }
 
-impl TopicName {
-    pub fn to_string(&self) -> String {
-        match self {
+impl fmt::Display for TopicName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let topic = match self {
             TopicName::PrepareCommand => "prepare_command",
             TopicName::PrepareCommandAck => "prepare_command_ack",
             TopicName::PrepareCommandDone => "prepare_command_done",
             TopicName::CookCommand => "cook_command",
             TopicName::CookCommandAck => "cook_command_ack",
             TopicName::CookCommandDone => "cook_command_done",
-        }.to_string()
+        };
+        write!(f, "{}", topic)
     }
 }

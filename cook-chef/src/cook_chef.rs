@@ -5,6 +5,7 @@ use common::{
     msgs::{CommandDone, CookCommand, CookCommandAck},
     state::State,
     steps::FoodItem,
+    topics::TopicName,
 };
 
 pub struct CookChefService {
@@ -23,9 +24,9 @@ impl CookChefService {
             cooking_item: None,
             cooking_time: None,
             service_state: State::CREATED,
-            command_receiver: Receiver::new("cook_command".to_string(), None),
-            command_ack_sender: Sender::new("cook_command_ack".to_string(), None),
-            command_done_sender: Sender::new("cook_command_done".to_string(), None),
+            command_receiver: Receiver::new(TopicName::CookCommand.to_string(), None),
+            command_ack_sender: Sender::new(TopicName::CookCommandAck.to_string(), None),
+            command_done_sender: Sender::new(TopicName::CookCommandDone.to_string(), None),
         }
     }
 
